@@ -1,7 +1,6 @@
 # https://pyimagesearch.com/2024/02/12/image-processing-with-gemini-pro/
 
 # https://aistudio.google.com/app/apikey
-# AIzaSyCG0XPw_w0R5R3Lohqv07CbbZOUcazzOko
 
 # https://ai.google.dev/tutorials/python_quickstart
 

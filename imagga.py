@@ -1,7 +1,17 @@
 import requests
+import os
+from dotenv import load_dotenv
 
-api_key = 'acc_6c55dc8d001f7fe'
-api_secret = '6d92c5afb7c090d752d23f61ebf7847f'
+
+# Load the .env file
+load_dotenv()
+
+# Access variables using os.getenv()
+google_api_key = os.getenv("GOOGLE_API_KEY")
+
+
+api_key = os.getenv("IMAGGA_KEY")
+api_secret = os.getenv("IMAGGA_SECRET")
 image_url = 'https://docs.imagga.com/static/images/docs/sample/japan-605234_1280.jpg'
 
 response = requests.get(

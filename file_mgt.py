@@ -1,3 +1,19 @@
+import os
+import re
+import shutil
+import time
+import toml
+from dotenv import load_dotenv
+
+import utlis.jbf.file as file
+import utlis.jbf.db as db
+import utlis.jbf.gemini as api
+
+# TODO: tag file with _orig
+# TODO: create a thumbnail file
+# TODO: write metadata for 
+
+## Notes
 # https://pyimagesearch.com/2024/02/12/image-processing-with-gemini-pro/
 # https://aistudio.google.com/app/apikey
 # https://ai.google.dev/tutorials/python_quickstart
@@ -9,58 +25,14 @@
 # pip install -q -U google-generativeai
 # pip install pillow
 
-
-# [] given a folder
-# [] get a list of images
-# for each image...
-# [] get full name, file name, image name, tags
-# [] create a folder in the output folder for the image_name
-# [] move all files with the same image_name to the new folder
-# [] tag file with _orig
-# [] create a thumbnail file
-# [] use AI to get a title, tags, description
-# [] 
-
-import os
-import re
-import shutil
-import time
-from dotenv import load_dotenv
-
-import utlis.jbf.file as file
-import utlis.jbf.db as db
-import utlis.jbf.gemini as api
-
+# Load the config file
+cfg = toml.load("config.toml")
 
 # Load the .env file
 load_dotenv()
 
 # Access variables using os.getenv()
-google_api_key = os.getenv("GOOGLE_API_KEY")
-
-
-
-# Configuration: TODO: these should come from a config file or the command line
-input_folder = 'E:/Programs/Mmed/_Image/Fooocus_win64_2-0-50/Fooocus/outputs/2024-02-21'
-output_folder = 'E:/Dropbox/Biz/_Inbox/tagging'
-source = 'fooocus'
-dbfile = 'py_digitalart_tags.db'
-image_file_extensions = ['png', 'jpg', 'svg']
-ai_prompt = """For this image.
-Give me a title. A description and a list of 25 keywords comma separated.
-Make sure to mention the 2 primary colors, if the image represents a specific holiday or nationality, artistic style, theme and subject matter.
-DO NOT mention products that the image would be good for.
-DO NOT give me Additional Notes.
-Use high-quality SEO keywords.
-
-Desired format:
-title: <your title here>
-keywords: <your comma seperated list of 30 keywords here>
-description: <your description here. on a single line>
-"""
-api_pasue = 3
-gemini_model_vision = 'gemini-pro-vision'
-gemini_model_text = 'gemini-pro'
+cfg["ai"]["google_api_key"] = os.getenv("GOOGLE_API_KEY")
 
 
 def get_tags(filename):
@@ -69,12 +41,11 @@ def get_tags(filename):
     Files that are the same after you take out the tags should be moved to the same folder.
     """
 
-    tags = ['up2_up2_up2', 'up2_up2', 'up2', 'orig']
     tags_out = []
     name = re.sub('\..+$', '', filename)
     #print('name=', name)
 
-    for tag in tags:
+    for tag in cfg["app"]["file_tags"]:
         if tag in name:
             tags_out.append(tag)
             name = re.sub('_' + tag, '', name)
@@ -84,7 +55,7 @@ def get_tags(filename):
 
     return(name, tag)
 
-def load_new_images(input_folder, source):
+def load_new_images(input_folder, source, dbfile, image_file_extensions):
 
     """
         Given an input folder, load all the new image files into the db.
@@ -153,35 +124,46 @@ def get_ai_description(googleapi, dbfile, prompt):
     print(sql)
     all_rows = db.queryall(dbfile, sql)
     for row in all_rows:
-        # row[0] returns the first column in the query
+
         id = row[0]
-        source = row[1]
         folder = row[2]
         filename = row[3]
-        imageName = row[4]
         fullfilename = '/'.join([folder, filename])
         file_notes = fullfilename + '_Notes.md'
         print('{0} : {1}, {2}, {3}, {4}'.format(row[0], row[1], row[2], row[3], row[4]))
 
-        response = api.analyze_image(google_api_key, gemini_model_vision, fullfilename, ai_prompt)
-        print(response)
+        ai_description = api.analyze_image(
+            googleapi, cfg['ai']['gemini']['models']['vision'], fullfilename, cfg['prompts']['ai_prompt']
+        )
+        # print(response)
 
-        write_file(file_notes, response)
+        parsed = api.parse_description(
+            googleapi,
+            cfg["ai"]["gemini"]["models"]["text"],
+            cfg["prompts"]["ai_prompt_parse"],
+            ai_description,
+            cfg["prompts"]["ai_prompt_parse_parts"],
+        )
 
-        db.upd_img_notes(dbfile, id, 'Notes', response)
+        db.upd_img_notes(dbfile, id, "Notes", ai_description, parsed)
 
-        time.sleep(api_pasue)
+        file.write_file(file_notes, ai_description)
 
-def write_file(file, text):
-    f = open(file,"w+", encoding='utf-8')
-    f.write(text)
-    f.close()
+        time.sleep(cfg['ai']['api_pasue'])
+
+
 
 
 def main():
-    load_new_images(input_folder, source)
-    move_new_images(output_folder, dbfile)
-    get_ai_description(google_api_key, dbfile, ai_prompt)
+    load_new_images(
+        cfg["input"]["folder"],
+        cfg["input"]["source"],
+        cfg["db"]["file"],
+        cfg["app"]["image_file_extensions"],
+    )
+    move_new_images(cfg["output"]["folder"], cfg["db"]["file"])
+    get_ai_description(cfg["ai"]["google_api_key"], cfg["db"]["file"], cfg['prompts']['ai_prompt'])
+    pass
 
 
 

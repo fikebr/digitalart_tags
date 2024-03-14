@@ -1,9 +1,5 @@
-
 import os
 from pathlib import Path
-
-input_folder = 'E:\Programs\Mmed\_Image\Fooocus_win64_2-0-50\Fooocus\outputs\2023-12-14'
-output_folder = 'E:\Dropbox\Biz\_Inbox\tagging'
 
 def scandir(dir_name):
     # https://www.geeksforgeeks.org/python-os-scandir-method/
@@ -14,6 +10,11 @@ def scandir(dir_name):
         return os.scandir(path)
     else:
         return 0
+
+def write_file(file, text):
+    f = open(file, "w+", encoding="utf-8")
+    f.write(text)
+    f.close()
 
 
 def isdir(dir):

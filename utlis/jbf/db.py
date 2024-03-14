@@ -33,16 +33,15 @@ def upd_img_status(dbfile, id, status, folder):
         # Close the db connection
         db.close()
 
-def upd_img_notes(dbfile, id, status, notes):
+def upd_img_notes(dbfile, id, status, notes, parsed):
     try:
 
         db = sqlite3.connect(dbfile)
         cursor = db.cursor()
-
-        #sql = "update Images set status='{}', ai_description='{}' where id={}".format(status, notes, id)
-        #print(sql)
-        cursor.execute("update Images set status=?, ai_description=? where id=?", [status, notes, id])
-        # cursor.execute(sql)
+        cursor.execute(
+            "update Images set status=?, ai_description=?, ai_title=?, ai_keywords=?, ai_desc=? where id=?",
+            [status, notes, parsed["title"], parsed["keywords"], parsed["description"], id]
+        )
         db.commit()
 
     # Catch the exception

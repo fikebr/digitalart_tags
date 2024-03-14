@@ -1,0 +1,43 @@
+[input]
+folder = "E:/Programs/Mmed/_Image/Fooocus_win64_2-0-50/Fooocus/outputs/2024-02-21"
+source = "fooocus"
+
+[output]
+folder = "E:/Dropbox/Biz/_Inbox/tagging"
+
+[db]
+file = "py_digitalart_tags.db"
+
+
+[app]
+image_file_extensions = ["png", "jpg", "svg", "jpeg"]
+file_tags = ['up2_up2_up2', 'up2_up2', 'up2', 'orig']
+
+[ai]
+api_pasue = 3
+
+[ai.gemini]
+models = {vision = "gemini-pro-vision", text = "gemini-pro"}
+
+[prompts]
+ai_prompt = """For this image.
+Give me a title. A description and a list of 25 keywords comma separated.
+Make sure to mention the 2 primary colors, if the image represents a specific holiday or nationality, artistic style, theme and subject matter.
+DO NOT mention products that the image would be good for.
+DO NOT give me Additional Notes.
+Use high-quality SEO keywords.
+
+Desired format:
+title: <your title here>
+keywords: <your comma seperated list of 30 keywords here>
+description: <your description here. on a single line>
+"""
+
+ai_prompt_parse = """
+For the text below what is the {part}?
+Reply with only the {part} and nothing else.
+
+--text--
+{desc}
+"""
+ai_prompt_parse_parts = ["title", "keywords", "description"]

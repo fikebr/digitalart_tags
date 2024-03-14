@@ -1,5 +1,5 @@
 [input]
-folder = "E:/Programs/Mmed/_Image/Fooocus_win64_2-0-50/Fooocus/outputs/2024-02-21"
+folder = "E:/Programs/Mmed/_Image/Fooocus_win64_2-0-50/Fooocus/outputs/test"
 source = "fooocus"
 
 [output]
@@ -21,16 +21,18 @@ models = {vision = "gemini-pro-vision", text = "gemini-pro"}
 
 [prompts]
 ai_prompt = """For this image.
-Give me a title. A description and a list of 25 keywords comma separated.
+Give me a title, a description, the primary colors, the art style and a list of 25 keywords comma separated.
 Make sure to mention the 2 primary colors, if the image represents a specific holiday or nationality, artistic style, theme and subject matter.
 DO NOT mention products that the image would be good for.
 DO NOT give me Additional Notes.
 Use high-quality SEO keywords.
 
 Desired format:
-title: <your title here>
-keywords: <your comma seperated list of 30 keywords here>
-description: <your description here. on a single line>
+title: <the title here>
+colors: <the 2 primary colors here>
+keywords: <the keywords here. comma seperated list of 25 keywords>
+description: <the description here. on a single line>
+artstyle: <the art style here>
 """
 
 ai_prompt_parse = """

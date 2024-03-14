@@ -11,7 +11,11 @@ import utlis.jbf.gemini as api
 
 # TODO: tag file with _orig
 # TODO: create a thumbnail file
-# TODO: write metadata for 
+# TODO: calculate dimensions and dpi
+# TODO: write metadata to exif
+# TODO: create a few report functions that use templates
+# TODO: create a function that pulls the specific metadata out of the log.html for the specific image
+# TODO: create a color palette for the file and add colors to the keywords
 
 ## Notes
 # https://pyimagesearch.com/2024/02/12/image-processing-with-gemini-pro/
@@ -69,7 +73,7 @@ def load_new_images(input_folder, source, dbfile, image_file_extensions):
                     and entry.is_file()
                     and entry.name.endswith(tuple(image_file_extensions))
                 ):
-                    print(entry.name.endswith())
+                    print(entry.name)
                     tag = ''
                     (name, tag) = get_tags(entry.name)
                     db.insert_file(dbfile, source, input_folder, entry.name, tag, name)
@@ -102,13 +106,13 @@ def move_new_images(target_folder, dbfile):
                 os.makedirs(newdir)
             
             # get log.html            
-            if row[1] == 'fooocus':
-                logfile = '/'.join([row[2], 'log.html'])
-                shutil.copy2(logfile, newdir) # target filename is /dst/dir/file.ext
+            logfile = "/".join([row[2], "log.html"])
+            if row[1] == 'fooocus' and os.path.exists(logfile):
+                shutil.copy2(logfile, newdir)
 
             # move image file
             imagefile = '/'.join([row[2], row[3]])
-            shutil.move(imagefile, newdir) # target filename is /dst/dir/file.ext
+            shutil.move(imagefile, newdir)
 
             # Update the db
             db.upd_img_status(dbfile, row[0], 'Moved', newdir)

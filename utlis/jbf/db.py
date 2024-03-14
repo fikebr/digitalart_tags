@@ -40,7 +40,7 @@ def upd_img_notes(dbfile, id, status, notes, parsed):
         cursor = db.cursor()
         cursor.execute(
             "update Images set status=?, ai_description=?, ai_title=?, ai_keywords=?, ai_desc=? where id=?",
-            [status, notes, parsed["title"], parsed["keywords"], parsed["description"], id]
+            [status, notes.strip(), parsed["title"], parsed["keywords"], parsed["description"], id]
         )
         db.commit()
 

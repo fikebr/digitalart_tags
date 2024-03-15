@@ -2,12 +2,12 @@ import os
 import re
 import shutil
 import time
-import toml
 from dotenv import load_dotenv
 
 import utlis.jbf.file as file
 import utlis.jbf.db as db
 import utlis.jbf.gemini as api
+import utlis.jbf.toml as toml
 
 # TODO: tag file with _orig
 # TODO: create a thumbnail file
@@ -30,7 +30,8 @@ import utlis.jbf.gemini as api
 # pip install pillow
 
 # Load the config file
-cfg = toml.load("config.toml")
+# https://www.pythonforbeginners.com/basics/working-with-toml-files-in-python
+cfg = toml.load_file("config.toml")
 
 # Load the .env file
 load_dotenv()

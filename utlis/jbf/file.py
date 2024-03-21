@@ -12,7 +12,7 @@ def scandir(dir_name):
         return 0
 
 def write_file(file, text):
-    f = open(file, "w+", encoding="utf-8")
+    f = open(file, "w", encoding="utf-8")
     f.write(text)
     f.close()
 
@@ -22,15 +22,6 @@ def isdir(dir):
     return Path(dir).is_dir()
 
 def read_file(filename):
-    """
-    Reads the entire contents of a file and returns them as a string.
-
-    Args:
-        filename: The name of the file to read.
-
-    Returns:
-        The contents of the file as a string, or None if the file does not exist.
-    """
     if os.path.exists(filename):
         try:
             with open(filename, "r") as f:

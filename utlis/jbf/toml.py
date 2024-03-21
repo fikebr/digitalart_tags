@@ -12,23 +12,6 @@ def load_file(file):
 def save_file(tomlfile, data):
     """turn a python object into a toml string and save it to a file"""
     file=open(tomlfile,"w")
-    # data_dict={
-    #     "employee": {
-    #         "name": "John Doe",
-    #         "age": 35
-    #     },
-    #     "job": {
-    #         "title": "Software Engineer",
-    #         "department": "IT",
-    #         "years_of_experience": 10
-    #     },
-    #     "address": {
-    #         "street": "123 Main St.",
-    #         "city": "San Francisco",
-    #         "state": "CA",
-    #         "zip": 94102
-    #     }
-    # }
     toml.dump(data,file)
     file.close()
 

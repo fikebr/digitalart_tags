@@ -18,7 +18,7 @@ def metadata_from_log(html, imgfile):
     result = {}
 
     for table in metadata_tables:
-        labels = [label.text for label in table.find_all("td", class_="label")]
+        labels = [label.text for label in table.find_all("td", class_=["label", "key"])]
         values = [value.text.strip() for value in table.find_all("td", class_="value")]
         metadata = dict(zip(labels, values))
         result.update(metadata)

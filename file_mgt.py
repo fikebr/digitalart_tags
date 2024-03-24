@@ -82,16 +82,6 @@ def load_new_images(input_folder, source, dbfile, image_file_extensions):
         print("bad folder", input_folder)
 
 def move_new_images(target_folder, dbfile):
-    """
-        test: does output_folder exist?
-        db: query for images where status = new
-        for each image
-        create a target folder
-        move files
-        if fooocus, get the metadata from log.html
-        update the db
-        create the html file
-    """
     if file.isdir(target_folder):
 
         sql = """select id, source, folder, filename, imageName from Images where status = 'New'"""

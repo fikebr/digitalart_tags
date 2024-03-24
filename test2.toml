@@ -1,0 +1,14 @@
+[files]
+
+[files.file2]
+tags = ["up2"]
+ext = "png"
+
+[files.file3]
+tags = ["v2", "up4"]
+ext = "png"
+
+
+[ai]
+
+title = "title title"

@@ -1,28 +1,15 @@
 import os
 import pprint
-
 import utlis.jbf.toml as toml
+import utlis.jbf.tools as tools
 
 pp = pprint.PrettyPrinter(indent=4)
 
 
 def main():
-    t1 = toml.load_file(os.path.abspath("test.toml"))
-    pp.pprint(t1)
-    print("--------------")
-
-    t2 = toml.load_file(os.path.abspath("test2.toml"))
-    pp.pprint(t2)
-    print("--------------")
-
-    t3 = {}
-    t3.update(t1)
-    t3.update(t2)
-    t3["files"].update(t1["files"])
-    # t3["files"].update(t2["files"])
-
-    pp.pprint(t3)
-
+    pid = 24452
+    memory_usage_mb = tools.get_memory_usage(pid)
+    print(f"Process (PID {pid}) memory usage: {memory_usage_mb:.2f} MB")
 
 if __name__ == "__main__":
     main()

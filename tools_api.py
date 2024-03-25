@@ -1,11 +1,19 @@
 import utlis.jbf.claude as api
 import utlis.jbf.file as file
+import utlis.jbf.toml as toml
 import os
 import json
 import glob
 import re
 import pprint
 from dotenv import load_dotenv
+import logging as log
+
+log.basicConfig(
+    format="%(asctime)s %(levelname)s %(lineno)d : %(message)s",
+    datefmt="%Y%m%d_%H%M%S",
+    level=log.INFO,
+)
 
 pp = pprint.PrettyPrinter(indent=4)
 
@@ -14,8 +22,17 @@ load_dotenv()
 api_key = os.getenv("ANTHROPIC_KEY")
 
 # Configuration
-folder = "E:\\Programs\\Mmed\\_Image\\Fooocus_win64_2-0-50\\Fooocus\\outputs\\test"
-file_tags = ["up2_up2_up2", "up2_up2", "up2", "orig", "thumb"]
+cfg = toml.load_file("config.toml")
+file_tags = cfg["app"]["file_tags"]
+folder = cfg["input"]["folder"]
+
+def main():
+    image_files = get_image_files(folder)
+    image_dict = get_image_dictionary(image_files)
+    image_dict = get_json_data(image_dict)
+    image_dict = analyze_images(image_dict)
+    # pp.pprint(image_dict)
+
 
 # get all of the image files in the folder
 def get_image_files(folder):
@@ -120,12 +137,6 @@ def analyze_images(image_dict):
     return(image_dict)
 
 
-def main():
-    image_files = get_image_files(folder)
-    image_dict = get_image_dictionary(image_files)
-    image_dict = get_json_data(image_dict)
-    image_dict = analyze_images(image_dict)
-    # pp.pprint(image_dict)
 
 
 if __name__ == "__main__":

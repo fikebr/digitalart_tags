@@ -14,7 +14,7 @@ def base64_image(img_file):
 
 
 
-def analyze_image(apikey, img_file_fullpath, system_msg_file, prompt):
+def analyze_image(apikey, img_file_fullpath, system_msg_file, prompt, ai_model):
     client = anthropic.Anthropic(
         # defaults to os.environ.get("ANTHROPIC_API_KEY")
         api_key=apikey,
@@ -29,7 +29,7 @@ def analyze_image(apikey, img_file_fullpath, system_msg_file, prompt):
     system_msg = "\\n".join(lines)
 
     message = client.messages.create(
-        model="claude-3-haiku-20240307",
+        model=ai_model,
         max_tokens=1000,
         temperature=0,
         system=system_msg,
@@ -67,11 +67,6 @@ def extract_between_tags(tag: str, string: str, strip: bool = False) -> list[str
         ext_list = [e.strip() for e in ext_list]
     return json.loads(ext_list[0])
 
-
-# athlete_sports_dict = json.loads(extract_between_tags("athlete_sports", message)[0])
-# athlete_name_dicts = [
-#     json.loads(d) for d in extract_between_tags("athlete_name", message)
-# ]
 
 
 def test():

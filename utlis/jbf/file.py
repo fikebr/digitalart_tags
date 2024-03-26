@@ -1,13 +1,20 @@
 import os
+import glob
 from pathlib import Path
 
-def scandir(dir_name):
+def scandir(dir_name: str, patterns = ['*.*']) -> list:
     # https://www.geeksforgeeks.org/python-os-scandir-method/
     # https://docs.python.org/3/library/os.html#os.scandir
     # https://docs.python.org/3/library/os.html#os.DirEntry
 
+
     if isdir(dir_name):
-        return os.scandir(dir_name)
+        files = []
+        for ext in patterns:
+            files = files + glob.glob(os.path.join(dir_name, ext))
+
+        files = map(lambda x: os.path.basename(x), files)
+        return sorted(files)
     else:
         return 0
 

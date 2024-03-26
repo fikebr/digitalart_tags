@@ -107,7 +107,9 @@ def parse_existing_toml(folder: str, tomls: list) -> dict:
     for toml_file in tomls:
         (name, tags) = tools.get_tags(toml_file, file_tags)
         toml_dict[name] = {}
-        toml_dict[name] = toml.load_file(os.path.join(folder, toml_file))
+        toml_filename = os.path.join(folder, toml_file)
+        log.debug(f"toml file: {toml_filename}")
+        toml_dict[name] = toml.load_file(toml_filename)
 
     return toml_dict
 

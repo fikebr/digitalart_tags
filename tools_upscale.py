@@ -2,24 +2,38 @@ import glob
 import os
 import pprint
 import subprocess
-
+import logging as log
 import utlis.jbf.tools as tools
+import utlis.jbf.toml as toml
+
+log.basicConfig(
+    format="%(asctime)s %(levelname)s %(lineno)d : %(message)s",
+    datefmt="%Y%m%d_%H%M%S",
+    level=log.INFO,
+)
 
 pp = pprint.PrettyPrinter(indent=4)
 
-
 # Configuration
-folder = "E:\\Programs\\Mmed\\_Image\\Fooocus_win64_2-0-50\\Fooocus\\outputs\\test"
-# folder = "E:\\Programs\\Mmed\\_Image\\Fooocus_win64_2-0-50\\Fooocus\\outputs\\2024-03-14"
-file_tags = ["up2_up2_up2", "up2_up2", "up2", "up4", "orig", "thumb"]
-exe = "E:\\Programs\\Mmed\\_Image\\RealEsrgan-ncnn-vulkan\\realesrgan-ncnn-vulkan.exe"
+cfg = toml.load_file("config.toml")
+folder = cfg["input"]["folder"]
+file_tags = cfg["app"]["file_tags"]
+image_file_extensions = cfg["app"]["image_file_extensions"]
+exe = cfg["upscale"]["exe"]
 
 
 def main():
+    log.info(f"Get all files: folder = {folder}")
     files = get_all_files(folder)
+
+    log.info("Build the File Dictionary.")
     d = build_files_dict(files)
+
+    log.info("Cleanup abandoned TOLM files.")
     clean_abandoned_json(d)
     # d = clean_up2_tags(d)
+
+    log.info("Upscaling files.")
     upscale_images(d)
     # pp.pprint(d)
 
@@ -39,7 +53,6 @@ def upscale_image(file_name):
     scale = 2
 
     if os.path.exists(file_name):
-
         print(f"UPSCALING: {file_name}")
         (name, ext) = os.path.splitext(os.path.basename(file_name))
         dir = os.path.dirname(file_name)
@@ -94,7 +107,6 @@ def clean_abandoned_json(d):
 
 
 def build_files_dict(files):
-    print("BUILDING FILE DICTIONARY")
     d = {}
 
     for file_name in files:
@@ -104,8 +116,8 @@ def build_files_dict(files):
         imgname = name
         tags = ""
         (imgname, tags) = tools.get_tags(name, file_tags)
-        if ext == ".json":
-            tags = "json"
+        if ext == ".toml":
+            tags = "toml"
 
         if tags == "":
             tags = "orig"
@@ -114,13 +126,12 @@ def build_files_dict(files):
             d[imgname] = {}
             d[imgname]["files"] = {}
 
-        d[imgname]["files"][tags] = file_name
+        d[imgname]["files"][file_name] = tags
 
     return d
 
 
 def get_all_files(folder):
-    print(f"GETTING FILES FROM: {folder}")
     return glob.glob(os.path.join(folder, "*.*"))
 
 

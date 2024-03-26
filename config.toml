@@ -1,5 +1,5 @@
 [input]
-folder =  "E:\\Programs\\Mmed\\_Image\\Fooocus_win64_2-0-50\\Fooocus\\outputs\\2024-03-21\\"
+folder =  "E:\\Programs\\Mmed\\_Image\\Fooocus_win64_2-0-50\\Fooocus\\outputs\\2024-03-22\\Set1\\"
 source = "fooocus"
 
 [output]
@@ -11,8 +11,12 @@ file = "py_digitalart_tags.db"
 
 [app]
 image_file_extensions = [".png", ".jpg", ".svg", ".jpeg"]
-file_tags = ['up2_up2_up2', 'up2_up2', 'up2', 'orig', 'up4', 'up6', 'v2', 'v3']
+file_tags = ['up2_up2_up2', 'up2_up2', 'up2', 'orig', 'up4', 'up6', 'v1', 'v4', 'v2', 'v3']
 
 
 [ai]
 api_pasue = 3
+model = "claude-3-haiku-20240307"
+
+[upscale]
+exe = "E:\\Programs\\Mmed\\_Image\\RealEsrgan-ncnn-vulkan\\realesrgan-ncnn-vulkan.exe"

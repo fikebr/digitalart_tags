@@ -2,10 +2,13 @@ import os
 import utlis.jbf.file as file
 import utlis.jbf.tools as tools
 import utlis.jbf.toml as toml
+import utlis.jbf.bsoup as bs
+import utlis.jbf.claude as api
 import pprint
+import logging
 
 pp = pprint.PrettyPrinter(indent=4)
-
+log = logging.getLogger(__name__)
 
 class Session:
     def __init__(self, folder: str, config: dict):
@@ -18,27 +21,40 @@ class Session:
 
         self.scan()
 
-    def __str__(self):
-        # return f"Session: folder={self.folder}"
-        return pp.pformat(self)
-
-    def __repr__(self):
-        return pp.pformat(self)
 
     def scan(self):
-        self.files = file.scandir(self.folder)
+
+        patterns = []
+        patterns = self.config["app"]["image_file_extensions"]
+        patterns.append('.toml')
+        patterns = list(map(lambda x: f"*{x}", patterns))
+
+        self.files = file.scandir(self.folder, patterns)
         for f in self.files:
-            (name, tag) = tools.get_tags(f, self.config['app']['file_tags'])
+            (name, tag) = tools.get_tags(
+                f,
+                self.config["app"]["file_tags"],
+                self.config["app"]["image_file_extensions"],
+            )
             if name not in self.images:
                 self.addimage(name)
 
     def addimage(self, imagename):
         self.images[imagename] = Image(imagename, self.config, self.folder)
 
+    def get_fooocus(self):
+        for img in self.images:
+            self.images[img].get_fooocus()
+
+    def get_ai_description(self):
+        for img in self.images:
+            self.images[img].get_ai_description()
+
 
 
 class Image:
     def __init__(self, imagename, config, folder):
+        log.debug(f"new image: name={imagename}")
         self.imagename = imagename
         self.source = ""
         self.fooocus = {}
@@ -56,20 +72,23 @@ class Image:
         return f"Image: {self.imagename} ({self.status})"
 
     def get_files(self):
-        files = file.scandir(self.folder, f"{self.imagename}*")
+        image_files = []
+        pattern = [f"{self.imagename}*.*"]
+        image_files = file.scandir(self.folder, pattern)
 
-        for f in files:
+        for f in image_files:
             (name, tag) = tools.get_tags(
                 f,
                 self.config["app"]["file_tags"],
                 self.config["app"]["image_file_extensions"],
             )
 
-            if tag not in self.files:
+            if tag != "" and tag not in self.files:
                 self.files[tag] = f
 
     def toml_load_file(self):
-        if 'toml' in self.files['toml']:
+        if 'toml' in self.files:
+            log.debug(f"loading toml file: name={self.imagename}")
             t = toml.load_file(os.path.join(self.folder, self.files['toml']))
             self.toml_str = toml.to_toml(t)
 
@@ -96,7 +115,34 @@ class Image:
         self.files["toml"] = f"{self.imagename}.toml"
 
     def get_fooocus(self):
-        pass
+        log_file = os.path.join(self.folder, 'log.html')
+        if os.path.exists(log_file) and not self.fooocus:
+            log_html = file.read_file(log_file)
+            log.debug(f"{self.imagename} : get fooocus")
+            self.fooocus = bs.metadata_from_log(log_html, f"{self.imagename}.png")
+            self.toml_write_file()
+            
 
     def get_ai_description(self):
-        pass
+        if not self.ai:
+            img_file = ''
+            if 'thumb' in self.files:
+                img_file = self.files['thumb']
+            elif 'orig' in self.files:
+                img_file = self.files['orig']
+
+            if img_file != "":
+                prompt = "no extra information available"
+                if self.fooocus:
+                    prompt = self.fooocus['Prompt']
+
+                img_file = os.path.join(self.folder, img_file)
+
+                self.ai = api.analyze_image(
+                    img_file,
+                    self.config["ai"]["system_msg_file"],
+                    prompt,
+                    self.config["ai"]["model"],
+                )
+
+                self.toml_write_file()

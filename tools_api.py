@@ -101,39 +101,39 @@ def load_toml_file(image_name):
     return t
 
 
-def analyze_images(image_dict, ai_model):
-    system_msg_file = os.path.abspath(os.path.dirname(__file__))
-    system_msg_file = os.path.join(system_msg_file, "system_msg.txt")
-    system_msg = file.read_file(system_msg_file)
+# def analyze_images(image_dict, ai_model):
+#     system_msg_file = os.path.abspath(os.path.dirname(__file__))
+#     system_msg_file = os.path.join(system_msg_file, "system_msg.txt")
+#     system_msg = file.read_file(system_msg_file)
 
-    for name in image_dict:
-        if "description" not in image_dict[name]:
-            image_dict[name]["description"] = {}
+#     for name in image_dict:
+#         if "description" not in image_dict[name]:
+#             image_dict[name]["description"] = {}
 
-        if "api" not in image_dict[name]["description"]:
-            image_dict[name]["description"]["api"] = {}
+#         if "api" not in image_dict[name]["description"]:
+#             image_dict[name]["description"]["api"] = {}
 
-            prompt = "no extra information available"
-            if image_dict[name].get("metadata", {}).get("fooocus", {}).get("Prompt"):
-                prompt = image_dict[name]["metadata"]["fooocus"]["Prompt"]
+#             prompt = "no extra information available"
+#             if image_dict[name].get("metadata", {}).get("fooocus", {}).get("Prompt"):
+#                 prompt = image_dict[name]["metadata"]["fooocus"]["Prompt"]
 
-            img_file = ""
-            if "thumb" in image_dict[name]["files"]:
-                img_file = image_dict[name]["files"]["thumb"]
-            else:
-                img_file = image_dict[name]["files"]["orig"]
+#             img_file = ""
+#             if "thumb" in image_dict[name]["files"]:
+#                 img_file = image_dict[name]["files"]["thumb"]
+#             else:
+#                 img_file = image_dict[name]["files"]["orig"]
 
-            img_file = os.path.join(folder, img_file)
+#             img_file = os.path.join(folder, img_file)
 
-            log.info(f"\t{name}")
-            image_dict[name]["description"]["api"] = api.analyze_image(
-                api_key, img_file, system_msg, prompt, ai_model
-            )
+#             log.info(f"\t{name}")
+#             image_dict[name]["description"]["api"] = api.analyze_image(
+#                 api_key, img_file, system_msg, prompt, ai_model
+#             )
 
-            toml_file = os.path.join(folder, f"{name}.toml")
-            toml.save_file(toml_file, image_dict[name])
+#             toml_file = os.path.join(folder, f"{name}.toml")
+#             toml.save_file(toml_file, image_dict[name])
 
-    return image_dict
+#     return image_dict
 
 
 if __name__ == "__main__":

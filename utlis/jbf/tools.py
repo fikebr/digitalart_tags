@@ -1,6 +1,7 @@
 import re
 import os
 import psutil
+import subprocess
 
 
 def get_memory_usage(pid):
@@ -46,3 +47,15 @@ def get_tags(filename: str, tags: list, img_files_exts: list = "") -> list:
         tag = "orig"
 
     return (name, tag)
+
+
+def execute(execute_string):
+    output = subprocess.run(
+        execute_string,
+        shell=True,
+        text=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+    )
+
+    return(output)

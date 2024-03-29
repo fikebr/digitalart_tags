@@ -1,14 +1,14 @@
 import os
 import pprint
 import utlis.jbf.toml as toml
-import utlis.jbf.file as file
+# import utlis.jbf.file as file
 import logging
 from digitalart import Session
 
 logging.basicConfig(
     format="%(asctime)s %(levelname)s : %(name)s : %(lineno)d : %(message)s",
     datefmt="%Y%m%d_%H%M%S",
-    level=logging.DEBUG,
+    level=logging.INFO,
     # file='sample.log',
 )
 
@@ -27,8 +27,13 @@ def main():
     
 
     S = Session(cfg["input"]["folder"], cfg)
-    S.get_fooocus()
-    S.get_ai_description()
+    # S.get_fooocus()
+    # S.get_ai_description()
+    S.upscale()
+    S.toml_write()
+    S.toml_clean_abandoned()
+    # S.adobe_stock_csv()
+    # S.adobe_stock_mark_posted()
 
 
 if __name__ == "__main__":

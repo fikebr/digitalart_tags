@@ -3,7 +3,10 @@ import re
 import base64
 import json
 import os
+import logging
 from dotenv import load_dotenv
+
+log = logging.getLogger(__name__)
 
 # Load the .env file
 load_dotenv()
@@ -37,33 +40,38 @@ def analyze_image(img_file_fullpath, system_msg_file, prompt, ai_model):
 
     system_msg = "\\n".join(lines)
 
-    message = client.messages.create(
-        model=ai_model,
-        max_tokens=1000,
-        temperature=0,
-        system=system_msg,
-        messages=[
-            {
-                "role": "user",
-                "content": [
-                    {
-                        "type": "text",
-                        "text": prompt,
-                    },
-                    {
-                        "type": "image",
-                        "source": {
-                            "type": "base64",
-                            "media_type": "image/png",
-                            "data": img,
+    try:
+        message = client.messages.create(
+            model=ai_model,
+            max_tokens=2000,
+            temperature=0,
+            system=system_msg,
+            messages=[
+                {
+                    "role": "user",
+                    "content": [
+                        {
+                            "type": "text",
+                            "text": prompt,
                         },
-                    },
-                ],
-            }
-        ],
-    ).content[0].text
-
-    # print(message)
+                        {
+                            "type": "image",
+                            "source": {
+                                "type": "base64",
+                                "media_type": "image/png",
+                                "data": img,
+                            },
+                        },
+                    ],
+                }
+            ],
+        ).content[0].text
+    except anthropic.error.APIError as e:
+        log.error(f"Error: {e.message}")
+        return None
+    except Exception as e:
+        log.error(f"Error: {e}")
+        return None
 
     data = extract_between_tags("metadata", message, True)
     return(data)

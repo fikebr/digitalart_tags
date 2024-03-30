@@ -1,5 +1,6 @@
 import os
 import glob
+import shutil
 from pathlib import Path
 
 def scandir(dir_name: str, patterns = []) -> list:
@@ -24,6 +25,10 @@ def write_file(file, text):
     f = open(file, "w", encoding="utf-8")
     f.write(text)
     f.close()
+
+
+def copy_file(source, dest):
+    shutil.copyfile(source, dest)
 
 
 def isdir(dir):

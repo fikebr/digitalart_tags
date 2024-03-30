@@ -1,7 +1,8 @@
 [input]
 # folder =  "E:\\Programs\\Mmed\\_Image\\Fooocus_win64_2-0-50\\Fooocus\\outputs\\2024-03-12\\Set1\\"
-folder =  "E:\\Programs\\Mmed\\_Image\\Fooocus_win64_2-0-50\\Fooocus\\outputs\\2024-03-23\\Set1\\"
+# folder =  "E:\\Programs\\Mmed\\_Image\\Fooocus_win64_2-0-50\\Fooocus\\outputs\\2024-03-23\\Set1\\"
 # folder =  "E:\\Programs\\Mmed\\_Image\\Fooocus_win64_2-0-50\\Fooocus\\outputs\\2024-03-27\\"
+folder =  "E:\\Programs\\Mmed\\_Image\\Fooocus_win64_2-0-50\\Fooocus\\outputs\\2024-03-16\\"
 source = "fooocus"
 
 [output]

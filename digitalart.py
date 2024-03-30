@@ -1,5 +1,6 @@
 import os
 import csv
+import traceback
 import time
 import utlis.jbf.file as file
 import utlis.jbf.tools as tools
@@ -30,6 +31,7 @@ class Session:
         patterns.append(".toml")
         patterns = list(map(lambda x: f"*{x}", patterns))
 
+        log.info(f"Scanning {self.folder} for files.")
         self.files = file.scandir(self.folder, patterns)
         for f in self.files:
             (name, tag) = tools.get_tags(
@@ -71,6 +73,7 @@ class Session:
             
 
     def adobe_stock_csv(self):
+        log.info("Scanning for images to send to Adobe Stock.")
         rows = []
         head = ["Filename", "Title", "Keywords", "Category", "Releases"]
         rows.append(head)
@@ -81,15 +84,29 @@ class Session:
             if row:
                 rows.append(row)
 
-        csv_filename = os.path.join(self.folder, "adobe_stock.csv")
+        if len(rows) > 1:
+            log.info(f"Preparing {len(rows)-1} images for Adobe Stock.")
+            adobe_stock_dir = os.path.join(self.folder, "adobe_stock")
+            if not os.path.exists(adobe_stock_dir):
+                os.mkdir()
+            csv_filename = os.path.join(adobe_stock_dir, "adobe_stock.csv")
 
-        with open(csv_filename, "w", newline="") as csvfile:
-            writer = csv.writer(csvfile)
+            with open(csv_filename, "w", newline="") as csvfile:
+                writer = csv.writer(csvfile)
 
-            # Write each row of data to the CSV file
-            for r in rows:
-                writer.writerow(r)
-    
+                # Write each row of data to the CSV file
+                for r in rows:
+                    writer.writerow(r)
+
+            for row in rows:
+                if row[0] == 'Filename':
+                    continue
+                
+                source = os.path.join(self.folder, row[0])
+                dest = os.path.join(adobe_stock_dir, row[0])
+
+                file.copy_file(source, dest)
+
     def adobe_stock_mark_posted(self):
         for img in self.images:
             self.images[img].mark_posted_to('adobe_stock')
@@ -184,11 +201,20 @@ class Image:
     def get_fooocus(self):
         log_file = os.path.join(self.folder, "log.html")
         if os.path.exists(log_file) and not self.fooocus:
-            self.source = 'fooocus'
-            log_html = file.read_file(log_file)
-            log.debug(f"{self.imagename} : get fooocus")
-            self.fooocus = bs.metadata_from_log(log_html, f"{self.imagename}.png")
-            self.toml_write_file()
+            log.info(f"Getting the fooocus metadata for {self.imagename}")
+            try:
+                self.source = 'fooocus'
+                log_html = file.read_file(log_file)
+                foo = bs.metadata_from_log(log_html, f"{self.imagename}.png")
+                if foo:
+                    self.fooocus = foo
+                    self.toml_write_file()
+                else:
+                    log.warn(f"No fooocus metadata found for {self.imagename}")
+            except Exception as e:
+                log.error(f"Error occurred in {__name__}")
+                log.error(traceback.format_exc(e.__traceback__))
+                log.error(f"Exception: {type(e).__name__}: {e}")
 
     def get_ai_description(self):
         if not self.ai:
@@ -205,16 +231,23 @@ class Image:
 
                 img_file = os.path.join(self.folder, img_file)
 
-                response = api.analyze_image(
-                    img_file,
-                    self.config["ai"]["system_msg_file"],
-                    prompt,
-                    self.config["ai"]["model"],
-                )
+                try:
+                    response = api.analyze_image(
+                        img_file,
+                        self.config["ai"]["system_msg_file"],
+                        prompt,
+                        self.config["ai"]["model"],
+                    )
 
-                if response:
-                    self.ai = response
-                    self.toml_write_file()
+                    if response:
+                        self.ai = response
+                        self.toml_write_file()
+
+                except Exception as e:
+                    log.error(f"Error occurred in {__name__}")
+                    log.error(traceback.format_exc(e.__traceback__))
+                    log.error(f"Exception: {type(e).__name__}: {e}")
+
 
     def upscale(self):
         scale = self.config["upscale"]["scale"]
